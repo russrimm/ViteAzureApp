@@ -45,6 +45,9 @@ npm install
    - `User.ReadWrite`
    - `User.ReadBasic.All`
    - `UserAuthenticationMethod.ReadWrite.All`
+   - `Application.Read.All` (for admin features)
+   - `Application.ReadWrite.All` (for granting permissions)
+   - `AppRoleAssignment.ReadWrite.All` (for granting permissions)
 4. Click **"Grant admin consent"** (requires Global Administrator role)
 
 **Get Your Credentials:**
@@ -52,6 +55,66 @@ npm install
 1. Go to **Overview** page
 2. Copy the **Application (client) ID**
 3. Copy the **Directory (tenant) ID**
+
+## Logic App Configuration (for TAP via Logic App)
+
+If you're using the Logic App integration for TAP generation:
+
+### 1. Enable System-Assigned Managed Identity
+
+1. Go to your Logic App in Azure Portal
+2. Navigate to **Identity** (under Settings)
+3. Set **Status** to **On** for System-assigned managed identity
+4. Click **Save**
+
+### 2. Grant Microsoft Graph API Permissions
+
+**Option A: Using the Admin Page (Recommended)**
+
+1. Navigate to `/admin` in the application
+2. Use the search box to find your Logic App's managed identity
+3. Select it from the dropdown
+4. Choose `UserAuthenticationMethod.ReadWrite.All` permission
+5. Click **Grant Permission**
+
+**Option B: Using Azure Portal**
+
+1. Stay on the Logic App's **Identity** page
+2. Click **Azure role assignments** button
+3. Click **+ Add role assignment**
+4. Select:
+   - **Scope**: Subscription or Resource Group
+   - **Role**: Appropriate role (not for Microsoft Graph API permissions)
+
+**IMPORTANT**: For Microsoft Graph API permissions specifically:
+1. From the Logic App's **Identity** page, copy the **Object ID**
+2. Go to **Azure Active Directory** → **Enterprise Applications**
+3. Find your Logic App by the Object ID
+4. Go to **Permissions**
+5. Click **Add permission** → **Microsoft Graph** → **Application permissions**
+6. Select `UserAuthenticationMethod.ReadWrite.All`
+7. Click **Grant admin consent**
+
+Alternatively, use the `/admin` page in the application which automates this process.
+
+### 3. Update Logic App Workflow
+
+Ensure your Logic App HTTP trigger is configured to accept POST requests with the user's Entra Object ID:
+
+```json
+{
+  "entraObjectId": "<user-object-id>"
+}
+```
+
+### Troubleshooting 403 Errors
+
+If you receive a 403 "Request Authorization failed" error when issuing TAP via Logic App:
+
+1. Verify the Logic App's managed identity has `UserAuthenticationMethod.ReadWrite.All` permission
+2. Check that admin consent was granted for the permission
+3. Wait a few minutes for permissions to propagate
+4. Use the `/admin` page to verify current permissions are correctly assigned
 
 ### 3. Configure Environment Variables
 
