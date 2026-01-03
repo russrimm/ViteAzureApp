@@ -41,9 +41,8 @@ npm install
 1. In your app registration, go to **API permissions**
 2. Click **"Add a permission"** → **Microsoft Graph** → **Delegated permissions**
 3. Add these permissions:
-   - `User.Read`
-   - `User.ReadWrite`
-   - `User.ReadBasic.All`
+   - `User.ReadWrite` (includes User.Read)
+   - `User.ReadBasic.All` (to search other users)
    - `UserAuthenticationMethod.ReadWrite.All`
    - `Application.ReadWrite.All` (for admin features - includes read access)
    - `AppRoleAssignment.ReadWrite.All` (for granting permissions)

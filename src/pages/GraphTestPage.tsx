@@ -243,9 +243,8 @@ const GraphTestPage: React.FC = () => {
                 <ul className="list-disc list-inside space-y-1 text-gray-600 ml-2">
                   <li>Go to "API permissions" in your app</li>
                   <li>Add permissions: Microsoft Graph → Delegated permissions</li>
-                  <li>Add: <code className="bg-gray-100 px-1 rounded">User.Read</code></li>
-                  <li>Add: <code className="bg-gray-100 px-1 rounded">User.ReadWrite</code></li>
-                  <li>Add: <code className="bg-gray-100 px-1 rounded">User.ReadBasic.All</code></li>
+                  <li>Add: <code className="bg-gray-100 px-1 rounded">User.ReadWrite</code> (includes read access)</li>
+                  <li>Add: <code className="bg-gray-100 px-1 rounded">User.ReadBasic.All</code> (to search other users)</li>
                   <li>Add: <code className="bg-gray-100 px-1 rounded">UserAuthenticationMethod.ReadWrite.All</code></li>
                   <li>Add: <code className="bg-gray-100 px-1 rounded">Application.ReadWrite.All</code> (for Admin page)</li>
                   <li>Add: <code className="bg-gray-100 px-1 rounded">AppRoleAssignment.ReadWrite.All</code> (for Admin page)</li>

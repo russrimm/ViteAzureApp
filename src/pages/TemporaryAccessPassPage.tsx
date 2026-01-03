@@ -193,9 +193,10 @@ const TemporaryAccessPassPage: React.FC = () => {
                 <button 
                   type="submit" 
                   disabled={loading} 
-                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ color: 'white' }}
                 >
-                  {loading ? <LoadingSpinner size="sm" /> : <span className="text-white">Search Users</span>}
+                  {loading ? <LoadingSpinner size="sm" /> : <span style={{ color: 'white' }}>Search Users</span>}
                 </button>
               </form>
             </CardContent>
@@ -301,9 +302,10 @@ const TemporaryAccessPassPage: React.FC = () => {
                       <div className="flex space-x-3">
                         <button 
                           onClick={handleCopyTAP} 
-                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-green-600 text-sm font-medium rounded-md shadow-sm bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          style={{ color: 'white' }}
                         >
-                          <span className="text-white">Copy TAP</span>
+                          <span style={{ color: 'white' }}>Copy TAP</span>
                         </button>
                         <button
                           onClick={() => {
@@ -312,9 +314,10 @@ const TemporaryAccessPassPage: React.FC = () => {
                             setSearchResults([]);
                             setSearchTerm('');
                           }}
-                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border-2 border-gray-400 text-sm font-medium rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          style={{ color: '#374151' }}
                         >
-                          <span className="text-gray-700">Generate Another</span>
+                          <span style={{ color: '#374151' }}>Generate Another</span>
                         </button>
                       </div>
                     </div>
