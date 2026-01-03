@@ -45,8 +45,7 @@ npm install
    - `User.ReadWrite`
    - `User.ReadBasic.All`
    - `UserAuthenticationMethod.ReadWrite.All`
-   - `Application.Read.All` (for admin features)
-   - `Application.ReadWrite.All` (for granting permissions)
+   - `Application.ReadWrite.All` (for admin features - includes read access)
    - `AppRoleAssignment.ReadWrite.All` (for granting permissions)
 4. Click **"Grant admin consent"** (requires Global Administrator role)
 

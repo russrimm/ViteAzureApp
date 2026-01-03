@@ -247,7 +247,9 @@ const GraphTestPage: React.FC = () => {
                   <li>Add: <code className="bg-gray-100 px-1 rounded">User.ReadWrite</code></li>
                   <li>Add: <code className="bg-gray-100 px-1 rounded">User.ReadBasic.All</code></li>
                   <li>Add: <code className="bg-gray-100 px-1 rounded">UserAuthenticationMethod.ReadWrite.All</code></li>
-                  <li>Click "Grant admin consent" (requires admin)</li>
+                  <li>Add: <code className="bg-gray-100 px-1 rounded">Application.ReadWrite.All</code> (for Admin page)</li>
+                  <li>Add: <code className="bg-gray-100 px-1 rounded">AppRoleAssignment.ReadWrite.All</code> (for Admin page)</li>
+                  <li>Click "Grant admin consent" (requires Global Administrator)</li>
                 </ul>
               </div>
 
@@ -257,6 +259,20 @@ const GraphTestPage: React.FC = () => {
                   <li>Copy the Application (client) ID from Overview</li>
                   <li>Copy the Directory (tenant) ID from Overview</li>
                   <li>Update your <code className="bg-gray-100 px-2 py-1 rounded">.env</code> file with these values</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">4. Configure Logic App (Optional - for TAP via Logic App)</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-600 ml-2">
+                  <li>Enable System-assigned Managed Identity in your Logic App (Identity → System assigned → On)</li>
+                  <li>Copy the Object ID from the Logic App's Identity page</li>
+                  <li>Navigate to the <strong>/admin</strong> page in this application</li>
+                  <li>Search for your Logic App's managed identity using the search box</li>
+                  <li>Select it from the dropdown list</li>
+                  <li>Choose <code className="bg-gray-100 px-1 rounded">UserAuthenticationMethod.ReadWrite.All</code> permission</li>
+                  <li>Click "Grant Permission" to allow the Logic App to call Graph API</li>
+                  <li>Alternatively: In Azure Portal, go to Logic App → Identity → Azure role assignments → Grant Graph API permissions manually</li>
                 </ul>
               </div>
 
