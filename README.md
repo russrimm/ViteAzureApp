@@ -2,12 +2,993 @@
 
 A modern, professional web portal for end-user IT needs built with Vite, React, TypeScript, and TailwindCSS.
 
+## Table of Contents
+
+- [Features](#features)
+- [Build This Application From Scratch](#build-this-application-from-scratch)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Logic App Configuration](#logic-app-configuration-for-tap-via-logic-app)
+- [Key Implementation Changes](#key-implementation-changes)
+- [Project Structure](#project-structure)
+- [Features Overview](#features-overview)
+- [Security Considerations](#security-considerations)
+- [Technologies Used](#technologies-used)
+
 ## Features
 
 - **Temporary Access Pass**: Generate TAP for users via Microsoft Graph API
 - **User Profile Management**: Update user profiles through Microsoft Graph API
 - **Modern UI**: Clean, intuitive interface built with TailwindCSS v4
 - **Secure Authentication**: Microsoft Authentication Library (MSAL) integration
+
+---
+
+## Build This Application From Scratch
+
+This comprehensive guide will walk you through creating this entire IT Support Portal from the ground up, including all prerequisites, dependencies, and configurations.
+
+### Step 1: Install Node.js and npm
+
+**Windows:**
+1. Download Node.js LTS (Long Term Support) from [https://nodejs.org/](https://nodejs.org/)
+2. Run the installer (e.g., `node-v20.x.x-x64.msi`)
+3. Follow the installation wizard, accepting defaults
+4. Open **Command Prompt** or **PowerShell** and verify:
+   ```bash
+   node --version   # Should show v18.x.x or higher
+   npm --version    # Should show 9.x.x or higher
+   ```
+
+**macOS:**
+```bash
+# Using Homebrew
+brew install node
+
+# Verify installation
+node --version
+npm --version
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+# Install Node.js 20.x
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Verify installation
+node --version
+npm --version
+```
+
+### Step 2: Create a New Vite + React + TypeScript Project
+
+```bash
+# Create project (select React + TypeScript when prompted)
+npm create vite@latest vite-azure-app -- --template react-ts
+
+# Navigate into project
+cd vite-azure-app
+
+# Install base dependencies
+npm install
+```
+
+### Step 3: Install Required Dependencies
+
+```bash
+# Authentication & Microsoft Graph
+npm install @azure/msal-browser@^4.27.0
+npm install @microsoft/microsoft-graph-client@^3.0.7
+
+# UI Libraries
+npm install react-router-dom@^7.10.1
+npm install @heroicons/react@^2.2.0
+npm install @headlessui/react@^2.2.9
+
+# HTTP Client
+npm install axios@^1.13.2
+
+# TailwindCSS v4 (PostCSS-based)
+npm install -D tailwindcss@^4.1.18
+npm install -D @tailwindcss/postcss@^4.1.18
+npm install -D postcss@^8.5.6
+npm install -D autoprefixer@^10.4.23
+
+# TypeScript & ESLint
+npm install -D @types/react@^18.3.18
+npm install -D @types/react-dom@^18.3.5
+npm install -D @typescript-eslint/eslint-plugin@^8.18.2
+npm install -D @typescript-eslint/parser@^8.18.2
+npm install -D eslint@^9.17.0
+npm install -D eslint-plugin-react-hooks@^5.0.0
+npm install -D eslint-plugin-react-refresh@^0.4.16
+```
+
+### Step 4: Configure TailwindCSS v4
+
+**Create `tailwind.config.js`:**
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+```
+
+**Create `postcss.config.js`:**
+
+```javascript
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
+```
+
+**Update `src/index.css`:**
+
+```css
+@import "tailwindcss";
+
+/* Your custom CSS here */
+```
+
+### Step 5: Configure Vite
+
+**Update `vite.config.ts`:**
+
+```typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173,
+    open: true,
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+  },
+});
+```
+
+### Step 6: Set Up Azure AD App Registration
+
+1. **Go to Azure Portal:**
+   - Navigate to [https://portal.azure.com](https://portal.azure.com)
+   - Go to **Azure Active Directory** → **App registrations**
+
+2. **Create New Registration:**
+   - Click **"New registration"**
+   - **Name**: `IT Support Portal`
+   - **Supported account types**: `Accounts in this organizational directory only`
+   - **Redirect URI**: Select `Single-page application (SPA)` and enter `http://localhost:5173`
+   - Click **Register**
+
+3. **Configure API Permissions:**
+   - Go to **API permissions** in your app registration
+   - Click **"Add a permission"** → **Microsoft Graph** → **Delegated permissions**
+   - Add these permissions:
+     - `User.ReadWrite`
+     - `User.ReadBasic.All`
+     - `UserAuthenticationMethod.ReadWrite.All`
+     - `Application.ReadWrite.All`
+     - `AppRoleAssignment.ReadWrite.All`
+   - Click **"Grant admin consent for [Your Organization]"** (requires Global Admin)
+
+4. **Copy Credentials:**
+   - From the **Overview** page, copy:
+     - **Application (client) ID**
+     - **Directory (tenant) ID**
+
+### Step 7: Create Environment Configuration
+
+**Create `.env` file in project root:**
+
+```env
+VITE_AZURE_CLIENT_ID=your-application-client-id-here
+VITE_AZURE_TENANT_ID=your-directory-tenant-id-here
+VITE_AZURE_REDIRECT_URI=http://localhost:5173
+```
+
+**Create `.env.example` (for documentation):**
+
+```env
+VITE_AZURE_CLIENT_ID=
+VITE_AZURE_TENANT_ID=
+VITE_AZURE_REDIRECT_URI=http://localhost:5173
+```
+
+**Update `.gitignore` to exclude `.env`:**
+
+```
+# Environment variables
+.env
+.env.local
+.env.*.local
+```
+
+### Step 8: Create Configuration Files
+
+**Create `src/config/config.ts`:**
+
+```typescript
+// Environment configuration
+export const config = {
+  azure: {
+    clientId: import.meta.env.VITE_AZURE_CLIENT_ID || '',
+    tenantId: import.meta.env.VITE_AZURE_TENANT_ID || '',
+    clientSecret: import.meta.env.VITE_AZURE_CLIENT_SECRET || '',
+    redirectUri: import.meta.env.VITE_AZURE_REDIRECT_URI || `${window.location.origin}`,
+  },
+};
+```
+
+### Step 9: Create Microsoft Graph Service
+
+**Create `src/services/graphService.ts`:**
+
+```typescript
+import { PublicClientApplication, InteractionRequiredAuthError } from '@azure/msal-browser';
+import { Client } from '@microsoft/microsoft-graph-client';
+import { config } from '../config/config';
+
+// MSAL Configuration
+const msalConfig = {
+  auth: {
+    clientId: config.azure.clientId,
+    authority: `https://login.microsoftonline.com/${config.azure.tenantId}`,
+    redirectUri: config.azure.redirectUri,
+  },
+  cache: {
+    cacheLocation: 'localStorage',
+    storeAuthStateInCookie: false,
+  },
+};
+
+// Request scopes
+const loginRequest = {
+  scopes: [
+    'User.ReadWrite',
+    'User.ReadBasic.All',
+    'UserAuthenticationMethod.ReadWrite.All',
+    'Application.ReadWrite.All',
+    'AppRoleAssignment.ReadWrite.All'
+  ],
+};
+
+export interface UserProfile {
+  id: string;
+  displayName: string;
+  mail: string;
+  userPrincipalName: string;
+  jobTitle?: string;
+  department?: string;
+  officeLocation?: string;
+  mobilePhone?: string;
+  businessPhones?: string[];
+}
+
+export interface TemporaryAccessPass {
+  temporaryAccessPass: string;
+  lifetimeInMinutes: number;
+  isUsableOnce: boolean;
+}
+
+class GraphService {
+  private msalInstance: PublicClientApplication | null = null;
+  private graphClient: Client | null = null;
+
+  async initialize(): Promise<void> {
+    if (this.msalInstance) return;
+
+    this.msalInstance = new PublicClientApplication(msalConfig);
+    await this.msalInstance.initialize();
+  }
+
+  async login(): Promise<void> {
+    await this.initialize();
+    await this.msalInstance!.loginPopup(loginRequest);
+  }
+
+  async logout(): Promise<void> {
+    await this.initialize();
+    await this.msalInstance!.logoutPopup();
+  }
+
+  async getAccessToken(): Promise<string> {
+    await this.initialize();
+    const accounts = this.msalInstance!.getAllAccounts();
+    
+    if (accounts.length === 0) {
+      throw new Error('No accounts found. Please sign in.');
+    }
+
+    try {
+      const response = await this.msalInstance!.acquireTokenSilent({
+        ...loginRequest,
+        account: accounts[0],
+      });
+      return response.accessToken;
+    } catch (error) {
+      if (error instanceof InteractionRequiredAuthError) {
+        const response = await this.msalInstance!.acquireTokenPopup(loginRequest);
+        return response.accessToken;
+      }
+      throw error;
+    }
+  }
+
+  private async getGraphClient(): Promise<Client> {
+    if (!this.graphClient) {
+      const token = await this.getAccessToken();
+      this.graphClient = Client.init({
+        authProvider: (done) => {
+          done(null, token);
+        },
+      });
+    }
+    return this.graphClient;
+  }
+
+  async getUserProfile(): Promise<UserProfile> {
+    const client = await this.getGraphClient();
+    const profile = await client.api('/me').get();
+    return profile;
+  }
+
+  async searchUsers(searchTerm: string): Promise<UserProfile[]> {
+    const client = await this.getGraphClient();
+    const response = await client
+      .api('/users')
+      .filter(`startswith(displayName,'${searchTerm}') or startswith(userPrincipalName,'${searchTerm}')`)
+      .select('id,displayName,mail,userPrincipalName,jobTitle,department')
+      .top(10)
+      .get();
+    return response.value;
+  }
+
+  async updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<void> {
+    const client = await this.getGraphClient();
+    await client.api(`/users/${userId}`).update(updates);
+  }
+
+  async createTemporaryAccessPass(
+    userId: string,
+    lifetimeInMinutes: number = 60,
+    isUsableOnce: boolean = true
+  ): Promise<TemporaryAccessPass> {
+    const client = await this.getGraphClient();
+    const tap = await client
+      .api(`/users/${userId}/authentication/temporaryAccessPassMethods`)
+      .post({
+        lifetimeInMinutes,
+        isUsableOnce,
+      });
+    return tap;
+  }
+
+  async listServicePrincipals(): Promise<any[]> {
+    const client = await this.getGraphClient();
+    const response = await client
+      .api('/servicePrincipals')
+      .select('id,appId,displayName,servicePrincipalType')
+      .top(999)
+      .get();
+    return response.value;
+  }
+
+  async listManagedIdentities(): Promise<any[]> {
+    const allSPs = await this.listServicePrincipals();
+    return allSPs.filter(sp => sp.servicePrincipalType === 'ManagedIdentity');
+  }
+
+  async getServicePrincipalAppRoleAssignments(servicePrincipalId: string): Promise<any[]> {
+    const client = await this.getGraphClient();
+    const response = await client
+      .api(`/servicePrincipals/${servicePrincipalId}/appRoleAssignments`)
+      .get();
+    
+    const assignments = response.value;
+    
+    // Enrich with role and resource details
+    for (const assignment of assignments) {
+      try {
+        const resourceSP = await client
+          .api(`/servicePrincipals/${assignment.resourceId}`)
+          .select('displayName,appRoles')
+          .get();
+        
+        assignment.resourceDisplayName = resourceSP.displayName;
+        
+        const role = resourceSP.appRoles?.find((r: any) => r.id === assignment.appRoleId);
+        if (role) {
+          assignment.appRoleName = role.value;
+          assignment.appRoleDescription = role.description;
+        }
+      } catch (err) {
+        console.error('Error enriching assignment:', err);
+      }
+    }
+    
+    return assignments;
+  }
+
+  async grantAppRoleToServicePrincipal(
+    servicePrincipalId: string,
+    resourceServicePrincipalId: string,
+    appRoleId: string
+  ): Promise<void> {
+    const client = await this.getGraphClient();
+    await client
+      .api(`/servicePrincipals/${servicePrincipalId}/appRoleAssignments`)
+      .post({
+        principalId: servicePrincipalId,
+        resourceId: resourceServicePrincipalId,
+        appRoleId: appRoleId,
+      });
+  }
+
+  isAuthenticated(): boolean {
+    return this.msalInstance?.getAllAccounts().length ?? 0 > 0;
+  }
+}
+
+export const graphService = new GraphService();
+```
+
+### Step 10: Create Reusable Components
+
+**Create `src/components/Layout.tsx`:**
+
+```typescript
+import { NavLink, Outlet } from 'react-router-dom';
+import { 
+  HomeIcon, 
+  KeyIcon, 
+  UserCircleIcon,
+  ShieldCheckIcon,
+  ArrowRightOnRectangleIcon 
+} from '@heroicons/react/24/outline';
+import { graphService } from '../services/graphService';
+import { useState } from 'react';
+
+const Layout = () => {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await graphService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const navigation = [
+    { name: 'Home', to: '/', icon: HomeIcon },
+    { name: 'Dashboard', to: '/dashboard', icon: HomeIcon },
+    { name: 'Temporary Access Pass', to: '/tap', icon: KeyIcon },
+    { name: 'User Profile', to: '/profile', icon: UserCircleIcon },
+    { name: 'Admin', to: '/admin', icon: ShieldCheckIcon },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <h1 className="text-xl font-bold text-primary-600">IT Support Portal</h1>
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                {navigation.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.to}
+                    className={({ isActive }) =>
+                      `inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                        isActive
+                          ? 'border-primary-500 text-gray-900'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      }`
+                    }
+                  >
+                    <item.icon className="h-5 w-5 mr-2" />
+                    {item.name}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center">
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+              >
+                <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Layout;
+```
+
+**Create `src/components/Card.tsx`:**
+
+```typescript
+import React from 'react';
+
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export const Card: React.FC<CardProps> = ({ children, className = '' }) => {
+  return (
+    <div className={`bg-white overflow-hidden shadow rounded-lg ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+export const CardHeader: React.FC<CardProps> = ({ children, className = '' }) => {
+  return <div className={`px-4 py-5 sm:px-6 ${className}`}>{children}</div>;
+};
+
+export const CardContent: React.FC<CardProps> = ({ children, className = '' }) => {
+  return <div className={`px-4 py-5 sm:p-6 ${className}`}>{children}</div>;
+};
+```
+
+**Create `src/components/LoadingSpinner.tsx`:**
+
+```typescript
+interface LoadingSpinnerProps {
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md' }) => {
+  const sizeClasses = {
+    sm: 'h-4 w-4',
+    md: 'h-8 w-8',
+    lg: 'h-12 w-12',
+  };
+
+  return (
+    <div className="flex justify-center items-center">
+      <div
+        className={`${sizeClasses[size]} animate-spin rounded-full border-4 border-gray-200 border-t-primary-600`}
+      />
+    </div>
+  );
+};
+
+export default LoadingSpinner;
+```
+
+**Create `src/components/Alert.tsx`:**
+
+```typescript
+import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+
+interface AlertProps {
+  type: 'success' | 'error' | 'warning' | 'info';
+  title?: string;
+  message: string;
+  onClose?: () => void;
+}
+
+const Alert: React.FC<AlertProps> = ({ type, title, message, onClose }) => {
+  const styles = {
+    success: {
+      bg: 'bg-green-50',
+      border: 'border-green-400',
+      text: 'text-green-800',
+      icon: CheckCircleIcon,
+      iconColor: 'text-green-400',
+    },
+    error: {
+      bg: 'bg-red-50',
+      border: 'border-red-400',
+      text: 'text-red-800',
+      icon: ExclamationTriangleIcon,
+      iconColor: 'text-red-400',
+    },
+    warning: {
+      bg: 'bg-yellow-50',
+      border: 'border-yellow-400',
+      text: 'text-yellow-800',
+      icon: ExclamationTriangleIcon,
+      iconColor: 'text-yellow-400',
+    },
+    info: {
+      bg: 'bg-blue-50',
+      border: 'border-blue-400',
+      text: 'text-blue-800',
+      icon: InformationCircleIcon,
+      iconColor: 'text-blue-400',
+    },
+  };
+
+  const style = styles[type];
+  const Icon = style.icon;
+
+  return (
+    <div className={`${style.bg} ${style.border} border-l-4 p-4 rounded`}>
+      <div className="flex">
+        <div className="flex-shrink-0">
+          <Icon className={`h-5 w-5 ${style.iconColor}`} />
+        </div>
+        <div className="ml-3 flex-1">
+          {title && <h3 className={`text-sm font-medium ${style.text}`}>{title}</h3>}
+          <div className={`text-sm ${style.text} ${title ? 'mt-2' : ''}`}>
+            <p>{message}</p>
+          </div>
+        </div>
+        {onClose && (
+          <div className="ml-auto pl-3">
+            <div className="-mx-1.5 -my-1.5">
+              <button
+                onClick={onClose}
+                className={`inline-flex rounded-md p-1.5 ${style.text} hover:bg-${type}-100 focus:outline-none focus:ring-2 focus:ring-${type}-600`}
+              >
+                <span className="sr-only">Dismiss</span>
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Alert;
+```
+
+### Step 11: Create Page Components
+
+**Create `src/pages/GraphTestPage.tsx`:**
+
+```typescript
+import { useState } from 'react';
+import { graphService, UserProfile } from '../services/graphService';
+import LoadingSpinner from '../components/LoadingSpinner';
+
+const GraphTestPage = () => {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await graphService.login();
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGetProfile = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const userProfile = await graphService.getUserProfile();
+      setProfile(userProfile);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Microsoft Graph API Test</h1>
+      
+      <div className="bg-white shadow rounded-lg p-6 space-y-4">
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          style={{ color: 'white' }}
+        >
+          {loading ? <LoadingSpinner size="sm" /> : 'Sign In'}
+        </button>
+
+        <button
+          onClick={handleGetProfile}
+          disabled={loading}
+          className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+          style={{ color: 'white' }}
+        >
+          {loading ? <LoadingSpinner size="sm" /> : 'Get My Profile'}
+        </button>
+
+        {error && (
+          <div className="p-4 bg-red-50 text-red-800 rounded-md">
+            {error}
+          </div>
+        )}
+
+        {profile && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-md">
+            <h2 className="text-lg font-semibold mb-2">Profile Information:</h2>
+            <pre className="text-sm">{JSON.stringify(profile, null, 2)}</pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GraphTestPage;
+```
+
+**Create `src/pages/Dashboard.tsx`:**
+
+```typescript
+import { Link } from 'react-router-dom';
+import { KeyIcon, UserCircleIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { Card, CardContent, CardHeader } from '../components/Card';
+
+const Dashboard = () => {
+  const features = [
+    {
+      title: 'Temporary Access Pass',
+      description: 'Generate time-limited access passwords for users',
+      icon: KeyIcon,
+      link: '/tap',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+    },
+    {
+      title: 'User Profile Management',
+      description: 'View and edit user profile information',
+      icon: UserCircleIcon,
+      link: '/profile',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+    },
+    {
+      title: 'Admin',
+      description: 'Grant Graph API permissions to managed identities',
+      icon: ShieldCheckIcon,
+      link: '/admin',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+    },
+  ];
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="mt-2 text-gray-600">Select a tool to get started</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {features.map((feature) => (
+          <Link key={feature.title} to={feature.link}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <CardHeader>
+                <div className={`${feature.bgColor} rounded-lg p-3 w-12 h-12 flex items-center justify-center`}>
+                  <feature.icon className={`h-6 w-6 ${feature.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 text-sm">{feature.description}</p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+```
+
+**Note:** Due to the complexity and length of the remaining pages (TemporaryAccessPassPage.tsx, UserProfilePage.tsx, AdminPage.tsx), refer to the existing source files in this repository for the complete implementation. Each page follows similar patterns using the components and services created above.
+
+### Step 12: Set Up Routing
+
+**Update `src/App.tsx`:**
+
+```typescript
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import GraphTestPage from './pages/GraphTestPage';
+import TemporaryAccessPassPage from './pages/TemporaryAccessPassPage';
+import UserProfilePage from './pages/UserProfilePage';
+import AdminPage from './pages/AdminPage';
+import { graphService } from './services/graphService';
+import { useEffect, useState } from 'react';
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      await graphService.initialize();
+      setIsAuthenticated(graphService.isAuthenticated());
+      setIsLoading(false);
+    };
+    initializeAuth();
+  }, []);
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
+          <Route index element={<GraphTestPage />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="tap" element={<TemporaryAccessPassPage />} />
+          <Route path="profile" element={<UserProfilePage />} />
+          <Route path="admin" element={<AdminPage />} />
+        </Route>
+        <Route path="/login" element={<GraphTestPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+**Update `src/main.tsx`:**
+
+```typescript
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+```
+
+### Step 13: Test the Application
+
+```bash
+# Start development server
+npm run dev
+```
+
+The application should open at `http://localhost:5173`. Test the authentication flow:
+
+1. Click "Sign In"
+2. Authenticate with your Microsoft account
+3. Grant the requested permissions
+4. Navigate through the portal features
+
+### Step 14: Build for Production
+
+```bash
+# Create production build
+npm run build
+
+# Preview production build locally
+npm run preview
+```
+
+The production files will be in the `dist/` directory.
+
+### Step 15: Deploy to Azure (Optional)
+
+**Deploy to Azure Static Web Apps:**
+
+```bash
+# Install Azure Static Web Apps CLI
+npm install -g @azure/static-web-apps-cli
+
+# Build the app
+npm run build
+
+# Deploy (follow prompts)
+swa deploy ./dist --env production
+```
+
+**Deploy to Azure App Service:**
+
+```bash
+# Install Azure CLI
+# Windows: Download from https://aka.ms/installazurecliwindows
+# macOS: brew install azure-cli
+# Linux: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Login to Azure
+az login
+
+# Create resource group
+az group create --name it-support-portal-rg --location eastus
+
+# Create App Service plan
+az appservice plan create --name it-support-portal-plan --resource-group it-support-portal-rg --sku FREE
+
+# Create web app
+az webapp create --name it-support-portal --resource-group it-support-portal-rg --plan it-support-portal-plan
+
+# Deploy
+az webapp deployment source config-zip --resource-group it-support-portal-rg --name it-support-portal --src dist.zip
+```
+
+### Troubleshooting Common Issues
+
+**Issue: MSAL "AADSTS50011: The redirect URI specified in the request does not match"**
+- Solution: Ensure the redirect URI in Azure AD matches exactly what's in your `.env` file
+
+**Issue: "Failed to fetch" errors when calling Graph API**
+- Solution: Verify API permissions are granted and admin consent was provided
+
+**Issue: TailwindCSS classes not applying**
+- Solution: Ensure `postcss.config.js` uses `@tailwindcss/postcss` and `index.css` uses `@import "tailwindcss"`
+
+**Issue: TypeScript errors on build**
+- Solution: Run `npm run lint` to identify and fix type errors
+
+**Issue: Environment variables undefined**
+- Solution: All client-side vars must be prefixed with `VITE_`
+
+---
 
 ## Prerequisites
 
