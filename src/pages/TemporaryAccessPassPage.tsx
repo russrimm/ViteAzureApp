@@ -193,10 +193,9 @@ const TemporaryAccessPassPage: React.FC = () => {
                 <button 
                   type="submit" 
                   disabled={loading} 
-                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ color: 'white' }}
+                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? <LoadingSpinner size="sm" /> : <span style={{ color: 'white' }}>Search Users</span>}
+                  {loading ? <LoadingSpinner size="sm" /> : <span className="text-white">Search Users</span>}
                 </button>
               </form>
             </CardContent>
@@ -302,10 +301,9 @@ const TemporaryAccessPassPage: React.FC = () => {
                       <div className="flex space-x-3">
                         <button 
                           onClick={handleCopyTAP} 
-                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-green-600 text-sm font-medium rounded-md shadow-sm bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                          style={{ color: 'white' }}
+                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-green-600 text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
-                          <span style={{ color: 'white' }}>Copy TAP</span>
+                          <span className="text-white">Copy TAP</span>
                         </button>
                         <button
                           onClick={() => {
@@ -314,10 +312,9 @@ const TemporaryAccessPassPage: React.FC = () => {
                             setSearchResults([]);
                             setSearchTerm('');
                           }}
-                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border-2 border-gray-400 text-sm font-medium rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                          style={{ color: '#374151' }}
+                          className="flex-1 inline-flex justify-center items-center px-4 py-2 border-2 border-gray-400 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                         >
-                          <span style={{ color: '#374151' }}>Generate Another</span>
+                          <span className="text-gray-700">Generate Another</span>
                         </button>
                       </div>
                     </div>
@@ -327,17 +324,16 @@ const TemporaryAccessPassPage: React.FC = () => {
                         onClick={handleGenerateTAP}
                         disabled={loading}
                         className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ color: 'white' }}
                       >
                         {loading ? (
                           <>
                             <LoadingSpinner size="sm" />
-                            <span className="ml-2" style={{ color: 'white' }}>Generating...</span>
+                            <span className="ml-2 text-white">Generating...</span>
                           </>
                         ) : (
                           <>
-                            <KeyIcon className="h-5 w-5 mr-2" style={{ color: 'white' }} />
-                            <span style={{ color: 'white' }}>Generate Temporary Access Pass</span>
+                            <KeyIcon className="h-5 w-5 mr-2 text-white" />
+                            <span className="text-white">Generate Temporary Access Pass</span>
                           </>
                         )}
                       </button>
@@ -345,17 +341,16 @@ const TemporaryAccessPassPage: React.FC = () => {
                         onClick={handleGenerateTAPViaLogicApp}
                         disabled={loading}
                         className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ color: 'white' }}
                       >
                         {loading ? (
                           <>
                             <LoadingSpinner size="sm" />
-                            <span className="ml-2" style={{ color: 'white' }}>Generating...</span>
+                            <span className="ml-2 text-white">Generating...</span>
                           </>
                         ) : (
                           <>
-                            <KeyIcon className="h-5 w-5 mr-2" style={{ color: 'white' }} />
-                            <span style={{ color: 'white' }}>Issue TAP via LogicApp</span>
+                            <KeyIcon className="h-5 w-5 mr-2 text-white" />
+                            <span className="text-white">Issue TAP via LogicApp</span>
                           </>
                         )}
                       </button>

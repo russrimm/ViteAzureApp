@@ -150,8 +150,8 @@ const UserProfilePage: React.FC = () => {
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900"
                 />
                 <div className="flex space-x-3">
-                  <button type="submit" disabled={loading} className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" style={{ color: 'white' }}>
-                    {loading ? <LoadingSpinner size="sm" /> : <span style={{ color: 'white' }}>Search Users</span>}
+                  <button type="submit" disabled={loading} className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                    {loading ? <LoadingSpinner size="sm" /> : <span className="text-white">Search Users</span>}
                   </button>
                   <button
                     type="button"
@@ -296,14 +296,14 @@ const UserProfilePage: React.FC = () => {
                       >
                         <span className="text-gray-700">Cancel</span>
                       </button>
-                      <button type="submit" disabled={loading} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" style={{ color: 'white' }}>
+                      <button type="submit" disabled={loading} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
                         {loading ? (
                           <>
                             <LoadingSpinner size="sm" />
-                            <span className="ml-2" style={{ color: 'white' }}>Saving...</span>
+                            <span className="ml-2 text-white">Saving...</span>
                           </>
                         ) : (
-                          <span style={{ color: 'white' }}>Save Changes</span>
+                          <span className="text-white">Save Changes</span>
                         )}
                       </button>
                     </div>

@@ -91,6 +91,10 @@ class GraphService {
     return accounts.length > 0 ? accounts[0] : null;
   }
 
+  isAuthenticated(): boolean {
+    return this.msalInstance.getAllAccounts().length > 0;
+  }
+
   private async getAccessToken(): Promise<string> {
     await this.ensureInitialized();
     

@@ -133,18 +133,18 @@ const AdminPage: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       <div className="mb-8 p-6 bg-gray-800 rounded-lg">
         <div className="flex items-center gap-3 mb-2">
-          <ShieldCheckIcon className="w-8 h-8" style={{ color: 'white' }} />
-          <h1 className="text-3xl font-bold" style={{ color: 'white' }}>
+          <ShieldCheckIcon className="w-8 h-8 text-white" />
+          <h1 className="text-3xl font-bold text-white">
             Admin - Grant Permissions
           </h1>
         </div>
-        <p className="text-sm" style={{ color: 'white' }}>
+        <p className="text-sm text-white">
           Grant Microsoft Graph API permissions to service principals (e.g., Logic App managed identities)
         </p>
       </div>
 
       <div className="mb-6 p-4 bg-blue-500 bg-opacity-20 border border-blue-500 rounded-lg">
-        <p className="text-sm font-semibold mb-2" style={{ color: 'white' }}>
+        <p className="text-sm font-semibold mb-2 text-white">
           ℹ️ Admin Consent Required
         </p>
         <p className="text-xs text-gray-300 mb-2">
@@ -159,20 +159,20 @@ const AdminPage: React.FC = () => {
 
       {error && (
         <div className="mb-6 p-4 bg-red-500 border-2 border-red-600 rounded-lg">
-          <p className="font-bold text-lg mb-1" style={{ color: 'white' }}>❌ Error</p>
-          <p className="text-sm" style={{ color: 'white' }}>{error}</p>
+          <p className="font-bold text-lg mb-1 text-white">❌ Error</p>
+          <p className="text-sm text-white">{error}</p>
         </div>
       )}
 
       {success && (
         <div className="mb-6 p-4 bg-green-500 border-2 border-green-600 rounded-lg">
-          <p className="font-bold text-lg mb-1" style={{ color: 'white' }}>✅ Success</p>
-          <p className="text-sm font-semibold" style={{ color: 'white' }}>{success}</p>
+          <p className="font-bold text-lg mb-1 text-white">✅ Success</p>
+          <p className="text-sm font-semibold text-white">{success}</p>
         </div>
       )}
 
       <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4" style={{ color: 'white' }}>
+        <h2 className="text-xl font-bold mb-4 text-white">
           Step 1: Select Service Principal / Managed Identity
         </h2>
         
@@ -185,7 +185,7 @@ const AdminPage: React.FC = () => {
             </p>
 
             <div className="mb-4">
-              <label htmlFor="identitySearch" className="block text-sm font-medium mb-2" style={{ color: 'white' }}>
+              <label htmlFor="identitySearch" className="block text-sm font-medium mb-2 text-white">
                 Search & Select Managed Identity
               </label>
               <input
@@ -206,6 +206,7 @@ const AdminPage: React.FC = () => {
                 value={servicePrincipalId}
                 size={Math.min(filteredIdentities.length + 1, 8)}
                 className="w-full px-3 py-2 bg-white border border-gray-300 border-t-0 rounded-b-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Select managed identity from list"
               >
                 <option value="">-- Select from {filteredIdentities.length} result{filteredIdentities.length !== 1 ? 's' : ''} --</option>
                 {filteredIdentities.map((identity) => (
@@ -249,7 +250,7 @@ const AdminPage: React.FC = () => {
         {(showManualEntry || identities.length === 0) && (
           <form onSubmit={handleLookupServicePrincipal} className="mt-4">
             <div className="mb-4">
-              <label htmlFor="spObjectId" className="block text-sm font-medium mb-2" style={{ color: 'white' }}>
+              <label htmlFor="spObjectId" className="block text-sm font-medium mb-2 text-white">
                 Service Principal Object ID
               </label>
               <input
@@ -266,8 +267,7 @@ const AdminPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading || !servicePrincipalId.trim()}
-              className="px-6 py-2 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ color: 'white' }}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Looking up...' : 'Lookup Service Principal'}
             </button>
@@ -277,20 +277,20 @@ const AdminPage: React.FC = () => {
 
       {spInfo && (
         <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4" style={{ color: 'white' }}>
+          <h2 className="text-xl font-bold mb-4 text-white">
             Service Principal Information
           </h2>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="font-semibold" style={{ color: 'white' }}>Display Name:</span>{' '}
+              <span className="font-semibold text-white">Display Name:</span>{' '}
               <span className="text-gray-300">{spInfo.displayName}</span>
             </div>
             <div>
-              <span className="font-semibold" style={{ color: 'white' }}>Object ID:</span>{' '}
+              <span className="font-semibold text-white">Object ID:</span>{' '}
               <span className="text-gray-300">{spInfo.id}</span>
             </div>
             <div>
-              <span className="font-semibold" style={{ color: 'white' }}>Application ID:</span>{' '}
+              <span className="font-semibold text-white">Application ID:</span>{' '}
               <span className="text-gray-300">{spInfo.appId}</span>
             </div>
           </div>
@@ -299,7 +299,7 @@ const AdminPage: React.FC = () => {
 
       {spInfo && (
         <div className="bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4" style={{ color: 'white' }}>
+          <h2 className="text-xl font-bold mb-4 text-white">
             Current Permissions (App Roles)
           </h2>
           
@@ -311,14 +311,14 @@ const AdminPage: React.FC = () => {
                 <div key={index} className="p-3 bg-gray-700 rounded-lg border border-gray-600">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <p className="font-semibold text-sm" style={{ color: 'white' }}>
+                      <p className="font-semibold text-sm text-white">
                         {permission.appRoleValue}
                       </p>
                       <p className="text-xs text-gray-400">
                         {permission.appRoleDisplayName}
                       </p>
                     </div>
-                    <span className="ml-2 px-2 py-1 bg-green-500 text-xs rounded" style={{ color: 'white' }}>
+                    <span className="ml-2 px-2 py-1 bg-green-500 text-white text-xs rounded">
                       ✓ Granted
                     </span>
                   </div>
@@ -335,7 +335,7 @@ const AdminPage: React.FC = () => {
             </div>
           ) : (
             <div className="p-4 bg-yellow-500 bg-opacity-20 border border-yellow-500 rounded-lg">
-              <p className="text-sm" style={{ color: 'white' }}>
+              <p className="text-sm text-white">
                 ⚠️ No permissions found. This managed identity has no Graph API permissions assigned.
               </p>
             </div>
@@ -345,7 +345,7 @@ const AdminPage: React.FC = () => {
 
       {spInfo && (
         <div className="bg-gray-800 rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-bold mb-4" style={{ color: 'white' }}>
+          <h2 className="text-xl font-bold mb-4 text-white">
             Step 2: Grant Permission
           </h2>
           <p className="text-sm text-gray-300 mb-4">
@@ -354,11 +354,12 @@ const AdminPage: React.FC = () => {
 
           <form onSubmit={handleGrantPermission}>
             <div className="mb-4">
-              <label htmlFor="permission" className="block text-sm font-medium mb-2" style={{ color: 'white' }}>
+              <label htmlFor="permission" className="block text-sm font-medium mb-2 text-white">
                 Permission (App Role)
               </label>
               <select
                 id="permission"
+                aria-label="Select Graph API permission to grant"
                 value={permissionName}
                 onChange={(e) => setPermissionName(e.target.value)}
                 className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -378,21 +379,20 @@ const AdminPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-green-600 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ color: 'white' }}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Granting Permission...' : 'Grant Permission'}
             </button>
           </form>
 
           <div className="mt-6 p-4 bg-yellow-500 bg-opacity-20 border border-yellow-500 rounded-lg">
-            <p className="text-sm font-semibold mb-2" style={{ color: 'yellow' }}>
+            <p className="text-sm font-semibold mb-2 text-yellow-300">
               ⚠️ Required Permissions
             </p>
-            <p className="text-xs" style={{ color: 'white' }}>
+            <p className="text-xs text-white">
               To grant permissions to service principals, your account must have:
             </p>
-            <ul className="text-xs list-disc list-inside mt-1" style={{ color: 'white' }}>
+            <ul className="text-xs list-disc list-inside mt-1 text-white">
               <li>Application.ReadWrite.All</li>
               <li>AppRoleAssignment.ReadWrite.All</li>
               <li>Or Global Administrator / Privileged Role Administrator role</li>
@@ -402,7 +402,7 @@ const AdminPage: React.FC = () => {
       )}
 
       <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2" style={{ color: 'white' }}>
+        <h3 className="text-lg font-semibold mb-2 text-white">
           💡 How to Find Service Principal Object ID
         </h3>
         <ol className="text-sm text-gray-300 list-decimal list-inside space-y-1">

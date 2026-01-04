@@ -19,8 +19,12 @@ A modern, professional web portal for end-user IT needs built with Vite, React, 
 
 - **Temporary Access Pass**: Generate TAP for users via Microsoft Graph API
 - **User Profile Management**: Update user profiles through Microsoft Graph API
+- **Admin Permission Management**: Grant Graph API permissions to managed identities (Logic Apps, Function Apps)
 - **Modern UI**: Clean, intuitive interface built with TailwindCSS v4
 - **Secure Authentication**: Microsoft Authentication Library (MSAL) integration
+- **Route Protection**: Automatic authentication enforcement on protected pages
+- **Environment Validation**: Startup validation of required Azure credentials
+- **Accessibility**: ARIA labels and keyboard navigation support
 
 ---
 
@@ -32,7 +36,7 @@ This comprehensive guide will walk you through creating this entire IT Support P
 
 **Windows:**
 1. Download Node.js LTS (Long Term Support) from [https://nodejs.org/](https://nodejs.org/)
-2. Run the installer (e.g., `node-v20.x.x-x64.msi`)
+2. Run the installer (e.g., `node-v24.x.x-x64.msi`)
 3. Follow the installation wizard, accepting defaults
 4. Open **Command Prompt** or **PowerShell** and verify:
    ```bash
@@ -178,11 +182,11 @@ export default defineConfig({
 });
 ```
 
-### Step 6: Set Up Azure AD App Registration
+### Step 6: Set Up Entra ID App Registration
 
 1. **Go to Azure Portal:**
    - Navigate to [https://portal.azure.com](https://portal.azure.com)
-   - Go to **Azure Active Directory** → **App registrations**
+   - Go to **Microsoft Entra ID** → **App registrations**
 
 2. **Create New Registration:**
    - Click **"New registration"**
@@ -845,35 +849,93 @@ export default Dashboard;
 **Update `src/App.tsx`:**
 
 ```typescript
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import AdminPage from './pages/AdminPage';
 import Dashboard from './pages/Dashboard';
 import GraphTestPage from './pages/GraphTestPage';
 import TemporaryAccessPassPage from './pages/TemporaryAccessPassPage';
 import UserProfilePage from './pages/UserProfilePage';
-import AdminPage from './pages/AdminPage';
 import { graphService } from './services/graphService';
-import { useEffect, useState } from 'react';
+import { validateEnvironment } from './utils/validateEnv';
+
+// Validate environment variables on app startup
+try {
+  validateEnvironment();
+} catch (error) {
+  console.error('Environment validation failed:', error);
+  if (error instanceof Error) {
+    alert(`Configuration Error:\n\n${error.message}`);
+  }
+}
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [userName, setUserName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      await graphService.initialize();
-      setIsAuthenticated(graphService.isAuthenticated());
-      setIsLoading(false);
-    };
-    initializeAuth();
+    const account = graphService.getAccount();
+    if (account) {
+      setUserName(account.name || account.username);
+    }
   }, []);
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
+  const handleLogout = async () => {
+    try {
+      await graphService.logout();
+      setUserName(undefined);
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
-    <BrowserRouter>
+    <Router>
+      <Routes>
+        <Route path="/" element={<GraphTestPage />} />
+        
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout onLogout={handleLogout} userName={userName}>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/tap" element={
+          <ProtectedRoute>
+            <Layout onLogout={handleLogout} userName={userName}>
+              <TemporaryAccessPassPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Layout onLogout={handleLogout} userName={userName}>
+              <UserProfilePage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <Layout onLogout={handleLogout} userName={userName}>
+              <AdminPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+```
       <Routes>
         <Route path="/" element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
           <Route index element={<GraphTestPage />} />
@@ -919,6 +981,19 @@ The application should open at `http://localhost:5173`. Test the authentication 
 2. Authenticate with your Microsoft account
 3. Grant the requested permissions
 4. Navigate through the portal features
+
+**Note:** If environment variables are missing or invalid, you'll see a validation error on startup. The application automatically validates:
+- All required environment variables are present
+- Client ID and Tenant ID are valid GUIDs
+- Redirect URI is a valid URL
+
+**Route Protection:** After authentication, you can access protected routes:
+- `/dashboard` - Main dashboard
+- `/tap` - Temporary Access Pass generation
+- `/profile` - User profile management
+- `/admin` - Permission management for managed identities
+
+Unauthenticated users attempting to access protected routes are automatically redirected to the home page.
 
 ### Step 14: Build for Production
 
@@ -1118,6 +1193,12 @@ npm run dev
 
 The application will open at `http://localhost:5173`
 
+**Environment Validation:** If you see an error alert on startup, check that:
+- Your `.env` file exists in the project root
+- All required variables are set: `VITE_AZURE_CLIENT_ID`, `VITE_AZURE_TENANT_ID`, `VITE_AZURE_REDIRECT_URI`
+- Client ID and Tenant ID are valid GUIDs (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+- Redirect URI is a valid URL
+
 ### 5. Test Authentication
 
 1. You'll see the **Graph API Test** page
@@ -1149,7 +1230,7 @@ This project uses **TailwindCSS v4** which has a different setup than v3:
    @import "tailwindcss";
    ```
 
-3. **Direct Tailwind Classes**: Some custom components use direct Tailwind classes instead of the Button component wrapper to ensure consistent rendering
+3. **Direct Tailwind Classes**: All components use direct Tailwind classes for consistency and maintainability (no inline styles)
 
 ### MSAL (Microsoft Authentication Library) Configuration
 
@@ -1157,11 +1238,33 @@ This project uses **TailwindCSS v4** which has a different setup than v3:
 2. **Popup Authentication**: Uses `loginPopup()` for a better user experience in SPA applications
 3. **Token Caching**: Stores tokens in `localStorage` for persistent sessions
 
-### Environment Variables
+### Environment Variables & Validation
 
 - All client-side environment variables **must** be prefixed with `VITE_`
 - Non-prefixed variables (e.g., `AZURE_CLIENT_ID`) are only available server-side
-- The app checks for `VITE_` prefixed variables at runtime
+- The app validates environment variables on startup (`src/utils/validateEnv.ts`):
+  - Checks that all required variables are present
+  - Validates GUID format for Client ID and Tenant ID
+  - Validates Redirect URI is a valid URL
+  - Displays clear error messages if validation fails
+
+### Route Protection
+
+All routes except the home page (`/`) are protected with the `ProtectedRoute` component:
+
+- `/dashboard` - Main dashboard
+- `/tap` - Temporary Access Pass generation
+- `/profile` - User profile management  
+- `/admin` - Admin permission management
+
+Unauthenticated users are automatically redirected to the home page to sign in.
+
+### Code Quality & Accessibility
+
+- **No Inline Styles**: All styling uses Tailwind CSS classes
+- **ARIA Labels**: Interactive elements include proper ARIA labels for screen readers
+- **TypeScript**: Full type safety throughout the application
+- **Error Handling**: Comprehensive error handling with user-friendly messages
 
 ## Build for Production
 
@@ -1180,23 +1283,24 @@ npm run preview
 ```
 src/
 ├── components/          # Reusable UI components
-│   ├── Layout.tsx
-│   ├── Card.tsx
-│   ├── Button.tsx
-│   ├── Input.tsx
-│   ├── TextArea.tsx
-│   ├── Alert.tsx
-│   └── LoadingSpinner.tsx
+│   ├── Layout.tsx      # Main layout with navigation
+│   ├── Card.tsx        # Card component
+│   ├── Alert.tsx       # Alert/notification component
+│   ├── LoadingSpinner.tsx  # Loading indicator
+│   └── ProtectedRoute.tsx  # Route protection wrapper
 ├── pages/              # Page components
-│   ├── Dashboard.tsx
-│   ├── GraphTestPage.tsx
-│   ├── TemporaryAccessPassPage.tsx
-│   └── UserProfilePage.tsx
+│   ├── Dashboard.tsx   # Main dashboard
+│   ├── GraphTestPage.tsx  # Home/login page
+│   ├── TemporaryAccessPassPage.tsx  # TAP generation
+│   ├── UserProfilePage.tsx  # User profile management
+│   └── AdminPage.tsx   # Admin permission management
 ├── services/           # API services
-│   └── graphService.ts
+│   └── graphService.ts  # Microsoft Graph API client
 ├── config/             # Configuration
-│   └── config.ts
-├── App.tsx             # Main app component
+│   └── config.ts       # Environment config
+├── utils/              # Utility functions
+│   └── validateEnv.ts  # Environment validation
+├── App.tsx             # Main app component with routing
 ├── main.tsx           # Entry point
 └── index.css          # Global styles
 ```
@@ -1205,36 +1309,49 @@ src/
 
 ### Dashboard
 - Quick access to all portal features
+- Clean card-based navigation
 
 ### Temporary Access Pass
-- Search for users
+- Search for users by name or email
 - Generate time-limited access passwords
 - Configurable lifetime and usage settings
 - Copy TAP to clipboard
+- Logic App integration support
 
 ### User Profile Management
-- Search for any user
+- Search for any user in the organization
 - View and edit user profiles
 - Update contact information
 - Modify job title and department
 
+### Admin Permission Management
+- Grant Microsoft Graph API permissions to managed identities
+- Search and select Logic Apps, Function Apps, and other managed identities
+- View current permissions assigned to service principals
+- Resolve 403 errors from Logic App TAP generation
+- Support for multiple Graph API permission types
+
 ## Security Considerations
 
-- Never commit `.env` file to version control
-- Store secrets securely in production
-- Review and limit API permissions
-- Implement proper error handling
-- Use HTTPS in production
+- **Environment Variables**: Never commit `.env` file to version control - it's excluded via `.gitignore`
+- **Environment Validation**: Automatic validation on startup prevents running with invalid configuration
+- **Route Protection**: All sensitive pages require authentication
+- **Token Security**: MSAL handles secure token storage and automatic refresh
+- **API Permissions**: Follow principle of least privilege - only request necessary permissions
+- **Production Deployment**: Always use HTTPS in production environments
+- **Admin Consent**: Ensure admin consent is granted for all required Graph API permissions
+- **Error Handling**: Comprehensive error handling prevents sensitive data exposure
 
 ## Technologies Used
 
-- **Frontend Framework**: React 18 with TypeScript
-- **Build Tool**: Vite 6
-- **Styling**: TailwindCSS 3
-- **Routing**: React Router 7
-- **Icons**: Heroicons
-- **Authentication**: MSAL Browser
-- **API Clients**: Axios, Microsoft Graph Client
+- **Frontend Framework**: React 18.3.1 with TypeScript 5.7.2
+- **Build Tool**: Vite 6.0.3
+- **Styling**: TailwindCSS 4.1.18 (PostCSS-based)
+- **Routing**: React Router 7.10.1
+- **Icons**: Heroicons 2.2.0
+- **Authentication**: MSAL Browser 4.27.0
+- **API Clients**: Microsoft Graph Client 3.0.7, Axios 1.13.2
+- **UI Components**: Headless UI 2.2.9
 
 ## License
 
@@ -1243,3 +1360,26 @@ MIT
 ## Support
 
 For issues and questions, please open an issue on GitHub.
+
+## Recent Improvements (January 2026)
+
+### Security Enhancements
+- ✅ Environment variable validation on startup with helpful error messages
+- ✅ Protected routes with automatic authentication enforcement
+- ✅ GUID format validation for Azure credentials
+- ✅ URL validation for redirect URIs
+
+### Code Quality
+- ✅ Removed all inline styles in favor of Tailwind CSS classes
+- ✅ Improved maintainability and consistency
+- ✅ Better bundle size optimization
+
+### Accessibility
+- ✅ Added ARIA labels to interactive elements
+- ✅ Improved keyboard navigation support
+- ✅ Screen reader friendly components
+
+### Developer Experience
+- ✅ Clear error messages for configuration issues
+- ✅ Comprehensive documentation
+- ✅ Complete TypeScript coverage

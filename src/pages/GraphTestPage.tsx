@@ -280,6 +280,16 @@ const GraphTestPage: React.FC = () => {
                   <strong>Note:</strong> After updating .env, restart the dev server with <code className="bg-blue-100 px-2 py-1 rounded">npm run dev</code>
                 </p>
               </div>
+
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 className="font-semibold text-green-900 mb-2">🔒 Security Features</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-green-800 ml-2">
+                  <li><strong>Environment Validation:</strong> Required Azure credentials are validated on startup</li>
+                  <li><strong>Route Protection:</strong> All pages except home require authentication</li>
+                  <li><strong>Secure Token Storage:</strong> MSAL tokens stored in localStorage with automatic refresh</li>
+                  <li><strong>Accessibility:</strong> ARIA labels and keyboard navigation support included</li>
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>
