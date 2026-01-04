@@ -941,22 +941,6 @@ function App() {
 
 export default App;
 ```
-      <Routes>
-        <Route path="/" element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
-          <Route index element={<GraphTestPage />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="tap" element={<TemporaryAccessPassPage />} />
-          <Route path="profile" element={<UserProfilePage />} />
-          <Route path="admin" element={<AdminPage />} />
-        </Route>
-        <Route path="/login" element={<GraphTestPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;
-```
 
 **Update `src/main.tsx`:**
 
