@@ -1,16 +1,19 @@
 /**
  * Validates that all required environment variables are present and valid
+ * This function runs when the app starts to catch configuration errors early
  * @throws Error if any required environment variable is missing
  */
 export function validateEnvironment(): void {
+  // List of all environment variables that MUST be set for the app to work
   const requiredEnvVars = [
-    'VITE_AZURE_CLIENT_ID',
-    'VITE_AZURE_TENANT_ID',
-    'VITE_AZURE_REDIRECT_URI',
+    'VITE_AZURE_CLIENT_ID',     // The app's unique ID in Azure
+    'VITE_AZURE_TENANT_ID',     // Your organization's ID in Azure
+    'VITE_AZURE_REDIRECT_URI',  // Where to redirect after login
   ];
 
-  const missing: string[] = [];
-  const invalid: string[] = [];
+  // Arrays to track which variables have issues
+  const missing: string[] = [];   // Variables that don't exist at all
+  const invalid: string[] = [];   // Variables that exist but are empty/invalid
 
   for (const envVar of requiredEnvVars) {
     const value = import.meta.env[envVar];
