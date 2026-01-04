@@ -35,12 +35,17 @@ This comprehensive guide will walk you through creating this entire IT Support P
 ### Step 1: Install Node.js and npm
 
 **Windows:**
-1. Download Node.js LTS (Long Term Support) from [https://nodejs.org/](https://nodejs.org/)
-2. Run the installer (e.g., `node-v24.x.x-x64.msi`)
-3. Follow the installation wizard, accepting defaults
-4. Open **Command Prompt** or **PowerShell** and verify:
+1. Download Node.js LTS (Long Term Support) from [https://nodejs.org/](https://nodejs.org/) or directly from [https://nodejs.org/download/release/](https://nodejs.org/download/release/) or using Chocolatey by performing the following steps.
+
+   Download and install Chocolatey:
+- 1. powershell -c "irm https://community.chocolatey.org/install.ps1|iex"
+- 2. Download and install Node.js:
+choco install nodejs --version="24.12.0"
+- 3. Run the installer (e.g., `node-v24.x.x-x64.msi`)
+- 4. Follow the installation wizard, accepting defaults
+- 5. Open **Command Prompt** or **PowerShell** and verify:
    ```bash
-   node --version   # Should show v18.x.x or higher
+   node --version   # Should show v24.x.x.x or higher
    npm --version    # Should show 9.x.x or higher
    ```
 
